@@ -17,76 +17,97 @@
 
   // Consent categories with detailed cookie information
   const categories = {
-    necessary: {
-      name: "Necessary",
-      description: "Essential cookies that enable basic functionality and security features.",
-      required: true,
-      storage: ["ad_storage", "analytics_storage"],
-      cookies: [
-        {
-          name: "_GRECAPTCHA",
-          duration: "6 months",
-          description:
-            "Google Recaptcha service sets this cookie to identify bots to protect the website against malicious spam attacks.",
+  "necessary": {
+    "name": "Necessary",
+    "description": "Essential cookies that enable basic functionality and security features.",
+    "required": true,
+    "storage": [],
+    "cookies": [
+      {
+        "name": "Google Recaptcha",
+        "duration": "6 months",
+        "parameters": {
+          "_GRECAPTCHA": "",
+          "1P_JAR": "",
+          "APISID": "",
+          "HSID": "",
+          "SID": "",
+          "SAPISID": "",
+          "SSID": ""
         },
-        {
-          name: "XSRF-TOKEN",
-          duration: "2 hours",
-          description: "This cookie enhances visitor browsing security by preventing cross-site request forgery.",
+        "description": "Google Recaptcha service sets this cookie to identify bots to protect the website against malicious spam attacks."
+      },
+      {
+        "name": "Website.com",
+        "parameters": {
+          "XSRF-TOKEN": ""
         },
-        {
-          name: "__cf_bm",
-          duration: "1 hour",
-          description: "This cookie, set by Cloudflare, is used to support Cloudflare Bot Management.",
+        "duration": "2 hours",
+        "description": "This cookie enhances visitor browsing security by preventing cross-site request forgery."
+      },
+      {
+        "name": "Cloudflare Bot Management",
+        "parameters": {
+          "__cfruid": "",
+          "cftoken": "",
+          "f-chl-*": "",
+          "cf_clearance": "",
+          "__cf_bm": ""
         },
-        {
-          name: "__cfruid",
-          duration: "session",
-          description: "Cloudflare sets this cookie to identify trusted web traffic.",
+        "duration": "1 hour",
+        "description": "This cookie, set by Cloudflare, is used to support Cloudflare Bot Management."
+      }
+    ]
+  },
+  "analytics": {
+    "name": "Analytics",
+    "description": "Cookies that help us understand how visitors interact with our website.",
+    "required": false,
+    "storage": [
+      "ad_storage",
+      "analytics_storage"
+    ],
+    "cookies": [
+      {
+        "name": "Google Analytics",
+        "duration": "2 years",
+        "parameters": {
+          "_ga": "",
+          "_gid": "",
+          "_gat": "",
+          "gcli": "",
+          "wbraid": "",
+          "gbraid": "",
+          "_gcl_*": ""
         },
-        {
-          name: "__Secure-ENID",
-          duration: "1 year 1 month",
-          description:
-            "The __Secure-ENID cookie is a type of secure cookie used for authentication and to ensure the security of user sessions.",
+        "description": "This cookie is set by Google Analytics to count the number of people who visit a certain site by tracking if they have visited before."
+      }
+    ]
+  },
+  "marketing": {
+    "name": "Marketing",
+    "description": "Cookies used to track visitors across websites to display relevant advertisements.",
+    "required": false,
+    "storage": [
+      "ad_user_data",
+      "ad_personalization"
+    ],
+    "cookies": [
+      {
+        "name": "Google ADS",
+        "duration": "2 years",
+        "parameters": {
+          "_gcl_aw": "",
+          "_gcl_dc": "",
+          "_gcl_gb": "",
+          "gcli": "",
+          "_gcl_au": ""
         },
-      ],
-    },
-    analytics: {
-      name: "Analytics",
-      description: "Cookies that help us understand how visitors interact with our website.",
-      required: false,
-      storage: ["analytics_storage"],
-      cookies: [
-        {
-          name: "ajs_anonymous_id",
-          duration: "Never Expires",
-          description:
-            "This cookie is set by Segment to count the number of people who visit a certain site by tracking if they have visited before.",
-        },
-        {
-          name: "ajs_user_id",
-          duration: "Never Expires",
-          description:
-            "This cookie is set by Segment to help track visitor usage, events, target marketing, and also measure application performance and stability.",
-        },
-      ],
-    },
-    marketing: {
-      name: "Marketing",
-      description: "Cookies used to track visitors across websites to display relevant advertisements.",
-      required: false,
-      storage: ["ad_storage", "ad_user_data", "ad_personalization"],
-      cookies: [
-        {
-          name: "m",
-          duration: "2 years",
-          description:
-            "Stripe sets this cookie for fraud prevention purposes. It identifies the device used to access the website, allowing the website to be formatted accordingly.",
-        },
-      ],
-    },
-  };
+        "description": "Stripe sets this cookie for fraud prevention purposes. It identifies the device used to access the website, allowing the website to be formatted accordingly."
+      }
+    ]
+  }
+};
 
   // Create and inject CSS
   const style = document.createElement("style");
@@ -280,6 +301,14 @@
             align-items: center;
             gap: 8px;
         }
+        .cookie-param {
+            font-size: 12px;
+            color: #5f6368;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
         .cookie-duration {
             font-size: 12px;
             color: #5f6368;
@@ -300,6 +329,22 @@
             background: #e8eaed;
             padding: 2px 6px;
             border-radius: 12px;
+        }
+        .parameter-tag {
+            border: 1px solid #1a73e8;
+            border-radius: 4px;
+            padding: 2px 6px;
+            margin-right: 5px;
+            display: inline-block;
+            color: #1a73e8;
+            font-size: 12px;
+            background-color: rgba(26, 115, 232, 0.05);
+        }
+        .parameter-container {
+            margin: 8px 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
         }
     `;
   document.head.appendChild(style);
@@ -351,25 +396,41 @@
                         <div class="cookie-details">
                             ${category.cookies
                               .map(
-                                (cookie) => `
-                                <div class="cookie-item">
-                                    <div class="cookie-name">
-                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M8 1.5C4.5 1.5 1.5 4.5 1.5 8C1.5 11.5 4.5 14.5 8 14.5C11.5 14.5 14.5 11.5 14.5 8C14.5 4.5 11.5 1.5 8 1.5ZM8 13C5.2 13 3 10.8 3 8C3 5.2 5.2 3 8 3C10.8 3 13 5.2 13 8C13 10.8 10.8 13 8 13Z" fill="#1a73e8"/>
-                                            <path d="M8 4.5C6.1 4.5 4.5 6.1 4.5 8C4.5 9.9 6.1 11.5 8 11.5C9.9 11.5 11.5 9.9 11.5 8C11.5 6.1 9.9 4.5 8 4.5ZM8 10C6.9 10 6 9.1 6 8C6 6.9 6.9 6 8 6C9.1 6 10 6.9 10 8C10 9.1 9.1 10 8 10Z" fill="#1a73e8"/>
-                                        </svg>
-                                        ${cookie.name}
+                                (cookie) => {
+                                  // Generate parameter HTML if parameters exist
+                                  let parameterHtml = '';
+                                  if (cookie.parameters) {
+                                    const paramKeys = Object.keys(cookie.parameters);
+                                    if (paramKeys.length > 0) {
+                                      const paramTags = paramKeys.map(key => 
+                                        `<span class="parameter-tag">${key}</span>`
+                                      ).join('');
+                                      
+                                      parameterHtml = `<div class="parameter-container"><span style="font-size: 10px;">Parameters:</span> ${paramTags}</div>`;
+                                    }
+                                  }
+                                  
+                                  return `
+                                    <div class="cookie-item">
+                                        <div class="cookie-name">
+                                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M8 1.5C4.5 1.5 1.5 4.5 1.5 8C1.5 11.5 4.5 14.5 8 14.5C11.5 14.5 14.5 11.5 14.5 8C14.5 4.5 11.5 1.5 8 1.5ZM8 13C5.2 13 3 10.8 3 8C3 5.2 5.2 3 8 3C10.8 3 13 5.2 13 8C13 10.8 10.8 13 8 13Z" fill="#1a73e8"/>
+                                                <path d="M8 4.5C6.1 4.5 4.5 6.1 4.5 8C4.5 9.9 6.1 11.5 8 11.5C9.9 11.5 11.5 9.9 11.5 8C11.5 6.1 9.9 4.5 8 4.5ZM8 10C6.9 10 6 9.1 6 8C6 6.9 6.9 6 8 6C9.1 6 10 6.9 10 8C10 9.1 9.1 10 8 10Z" fill="#1a73e8"/>
+                                            </svg>
+                                            ${cookie.name}
+                                        </div>
+                                        ${parameterHtml}
+                                        <div class="cookie-duration">
+                                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M8 1.5C4.5 1.5 1.5 4.5 1.5 8C1.5 11.5 4.5 14.5 8 14.5C11.5 14.5 14.5 11.5 14.5 8C14.5 4.5 11.5 1.5 8 1.5ZM8 13C5.2 13 3 10.8 3 8C3 5.2 5.2 3 8 3C10.8 3 13 5.2 13 8C13 10.8 10.8 13 8 13Z" fill="#5f6368"/>
+                                                <path d="M8 4.5V8L10.5 9.5" stroke="#5f6368" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+                                            Duration: ${cookie.duration}
+                                        </div>
+                                        <div class="cookie-description">${cookie.description}</div>
                                     </div>
-                                    <div class="cookie-duration">
-                                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M8 1.5C4.5 1.5 1.5 4.5 1.5 8C1.5 11.5 4.5 14.5 8 14.5C11.5 14.5 14.5 11.5 14.5 8C14.5 4.5 11.5 1.5 8 1.5ZM8 13C5.2 13 3 10.8 3 8C3 5.2 5.2 3 8 3C10.8 3 13 5.2 13 8C13 10.8 10.8 13 8 13Z" fill="#5f6368"/>
-                                            <path d="M8 4.5V8L10.5 9.5" stroke="#5f6368" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                        </svg>
-                                        Duration: ${cookie.duration}
-                                    </div>
-                                    <div class="cookie-description">${cookie.description}</div>
-                                </div>
-                            `
+                                  `;
+                                }
                               )
                               .join("")}
                         </div>
